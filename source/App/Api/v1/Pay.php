@@ -9,7 +9,7 @@ class Pay extends Api
     /** @var string */
     private $access_token;
     /** @var int */
-    private $expire_in;
+    private $expires_in;
     /** @var string */
     private $scope;
 
@@ -32,23 +32,25 @@ class Pay extends Api
             "scope" => "customers.read customers.write plans.read plans.write transactions.read transactions.write webhooks.write cards.read cards.write card-brands.read charges.read charges.write boletos.read"
         ];
 
-        $curl_exec = cUrl(CONF_GALAXPAY_DEV . "/token", $headers, json_encode($body), "post");
+        $curl_exec = json_decode(cUrl(CONF_GALAXPAY_DEV . "/token", $headers, json_encode($body), "post"));
 
-        echo "<pre>";
-        var_dump($curl_exec);
-        echo "</pre>";
+//        echo "<pre>";
+//        var_dump($curl_exec);
+//        echo "</pre>";
 
-        if(!empty($curl_exec["error"])) {
+        if(!empty($curl_exec->error)) {
             // error -> [ message, details[] ]
-            $this->error = $curl_exec["error"];
+            $this->error = $curl_exec->error;
             return;
         }
 
-        if(!empty($curl_exec["access_token"])) {
-            $this->access_token = $curl_exec["access_token"];
-            $this->expire_in = $curl_exec["expire_in"];
-            $this->scope = $curl_exec["scope"];
+        if(!empty($curl_exec->access_token)) {
+            $this->access_token = $curl_exec->access_token;
+            $this->expires_in = $curl_exec->expires_in;
+            $this->scope = $curl_exec->scope;
         }
+
+        var_dump($this->access_token, $this->expires_in, $this->scope);
     }
 
     public function getError(): ?array
